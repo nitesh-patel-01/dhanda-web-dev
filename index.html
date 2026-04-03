@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteForge AI — Premium Website Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f8;
+    --text2: #8888aa;
+    --text3: #5555777;
+    --accent: #7c6dfa;
+    --accent2: #a855f7;
+    --accent-glow: rgba(124,109,250,0.25);
+    --green: #22d3a5;
+    --red: #f05069;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.5);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --trans: all 0.2s ease;
+  }
+  [data-theme="light"] {
+    --bg: #f4f4f8;
+    --surface: #ffffff;
+    --surface2: #f0f0f6;
+    --border: rgba(0,0,0,0.07);
+    --border2: rgba(0,0,0,0.12);
+    --text: #0f0f1a;
+    --text2: #55557a;
+    --text3: #9999bb;
+    --accent-glow: rgba(124,109,250,0.12);
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+  .topbar-logo {
+    font-family: var(--font-display);
+    font-size: 1.15rem; font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .topbar-logo span { opacity: 0.5; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; text-transform: uppercase;
+  }
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; transition: var(--trans);
+  }
+  .theme-toggle:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    height: calc(100vh - 56px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .panel-left::-webkit-scrollbar { width: 4px; }
+  .panel-left::-webkit-scrollbar-track { background: transparent; }
+  .panel-left::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .panel-header {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 10;
+  }
+  .panel-header h2 {
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .panel-header p {
+    font-size: 0.8rem; color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .form-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+
+  .form-section-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text3);
+    margin-top: 6px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-size: 0.78rem; font-weight: 500; color: var(--text2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .required { color: var(--accent); }
+
+  input, select, textarea {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    width: 100%;
+    transition: var(--trans);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text3); }
+  select { cursor: pointer; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  input[type="color"] {
+    padding: 3px 6px; height: 36px; cursor: pointer; width: 80px;
+  }
+  .color-row { display: flex; align-items: center; gap: 10px; }
+  .color-row input[type="text"] { flex: 1; }
+
+  .checkbox-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .checkbox-row span { font-size: 0.85rem; }
+
+  /* Advanced toggle */
+  .advanced-toggle {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; color: var(--accent);
+    cursor: pointer; font-weight: 600;
+    padding: 6px 0;
+    width: fit-content;
+    user-select: none;
+  }
+  .advanced-toggle .arrow { transition: transform 0.3s; font-size: 0.7rem; }
+  .advanced-toggle.open .arrow { transform: rotate(90deg); }
+  .advanced-section { display: none; flex-direction: column; gap: 14px; }
+  .advanced-section.open { display: flex; }
+
+  /* Generate Button */
+  .btn-generate {
+    font-family: var(--font-display);
+    font-size: 0.95rem; font-weight: 700;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #fff; border: none;
+    padding: 14px 20px; border-radius: var(--radius);
+    cursor: pointer; width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: var(--trans);
+    box-shadow: 0 4px 20px var(--accent-glow);
+    position: relative; overflow: hidden;
+  }
+  .btn-generate::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .btn-generate:hover::before { opacity: 1; }
+  .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 8px 28px var(--accent-glow); }
+  .btn-generate:active { transform: translateY(0); }
+  .btn-generate:disabled {
+    opacity: 0.6; cursor: not-allowed; transform: none;
+    box-shadow: none;
+  }
+  .btn-generate .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-generate.loading .spinner { display: block; }
+  .btn-generate.loading .btn-text { opacity: 0.8; }
+
+  .form-footer { padding: 0 22px 22px; }
+
+  /* ── RIGHT PANEL ── */
+  .panel-right {
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  .preview-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; height: 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .preview-topbar-left {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; color: var(--text2); font-weight: 500;
+  }
+  .preview-topbar-left .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .preview-topbar-left .dot.idle { background: var(--text3); box-shadow: none; animation: none; }
+  .preview-actions { display: flex; align-items: center; gap: 8px; }
+
+  .btn-sm {
+    font-family: var(--font-body);
+    font-size: 0.78rem; font-weight: 500;
+    padding: 7px 14px; border-radius: 8px;
+    cursor: pointer; transition: var(--trans);
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2); color: var(--text);
+  }
+  .btn-sm:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+  .btn-sm.primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .btn-sm.primary:hover { opacity: 0.88; }
+  .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .preview-wrapper { flex: 1; position: relative; overflow: hidden; }
+
+  .preview-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    padding: 40px;
+  }
+  .preview-placeholder .icon {
+    font-size: 3.5rem; opacity: 0.15;
+    filter: grayscale(1);
+  }
+  .preview-placeholder h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem; font-weight: 700;
+    color: var(--text2); text-align: center;
+  }
+  .preview-placeholder p {
+    font-size: 0.85rem; color: var(--text3);
+    text-align: center; max-width: 320px; line-height: 1.6;
+  }
+  .preview-placeholder .hint-chips {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin-top: 4px;
+  }
+  .hint-chip {
+    font-size: 0.75rem; padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+
+  .preview-loading {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  }
+  .preview-loading.active { display: flex; }
+  .loader-ring {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0deg, transparent 270deg);
+    animation: spin 1.1s linear infinite;
+    position: relative;
+  }
+  .loader-ring::before {
+    content: ''; position: absolute; inset: 4px;
+    border-radius: 50%; background: var(--bg);
+  }
+  .loader-ring::after {
+    content: '✦';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; color: var(--accent);
+    animation: counter-spin 1.1s linear infinite;
+  }
+  .loader-text {
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 600;
+    color: var(--text2);
+    animation: fade-pulse 1.5s ease-in-out infinite;
+  }
+  .loader-sub { font-size: 0.78rem; color: var(--text3); }
+  .loader-progress {
+    width: 200px; height: 3px;
+    background: var(--border);
+    border-radius: 3px; overflow: hidden;
+  }
+  .loader-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    animation: progress 12s ease-out forwards;
+  }
+
+  #preview-iframe {
+    width: 100%; height: 100%;
+    border: none;
+    display: none;
+  }
+  #preview-iframe.active { display: block; }
+
+  /* ── TOAST ── */
+  #toast-container {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 9999;
+  }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; border-radius: 10px;
+    font-size: 0.85rem; font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    box-shadow: var(--shadow-lg);
+    animation: slide-in 0.3s ease;
+    max-width: 320px;
+    color: var(--text);
+  }
+  .toast.success .t-icon { color: var(--green); }
+  .toast.error .t-icon { color: var(--red); }
+  .toast.info .t-icon { color: var(--accent); }
+  .toast.fade-out { animation: slide-out 0.3s ease forwards; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 18px;
+    padding: 28px;
+    max-width: 520px; width: 100%;
+    box-shadow: var(--shadow-lg);
+    animation: modal-in 0.3s ease;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .modal-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem; font-weight: 700;
+  }
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: var(--text2); transition: var(--trans);
+  }
+  .modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  .publish-step {
+    display: flex; gap: 14px;
+    padding: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 0.85rem; font-weight: 800; color: #fff;
+  }
+  .step-content h4 {
+    font-weight: 600; font-size: 0.9rem;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .step-content ul {
+    list-style: none; display: flex; flex-direction: column; gap: 4px;
+  }
+  .step-content ul li {
+    font-size: 0.8rem; color: var(--text2);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .step-content ul li::before { content: '→'; color: var(--accent); }
+  .platform-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 6px;
+    background: var(--accent-glow); color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes counter-spin { to { transform: rotate(-360deg); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  @keyframes fade-pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+  @keyframes progress { from { width:0 } to { width: 95% } }
+  @keyframes slide-in { from { transform: translateX(20px); opacity:0 } to { transform:none; opacity:1 } }
+  @keyframes slide-out { to { transform: translateX(20px); opacity:0 } }
+  @keyframes modal-in { from { transform: translateY(10px); opacity:0 } to { transform:none; opacity:1 } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .panel-left { max-height: 55vh; }
+    .panel-right { min-height: 45vh; }
+  }
+  @media (max-width: 600px) {
+    .preview-actions .btn-sm span { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">SiteForge <span>AI</span></div>
+  <div class="topbar-right">
+    <span class="badge">Beta</span>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: FORM -->
+  <aside class="panel-left">
+    <div class="panel-header">
+      <h2>✦ Website Details</h2>
+      <p>Fill in your business info to generate a premium site</p>
+    </div>
+
+    <div class="form-body">
+      <!-- REQUIRED -->
+      <div class="form-section-label">Required Info</div>
+
+      <div class="form-group">
+        <label>Business Name <span class="required">*</span></label>
+        <input type="text" id="f-name" placeholder="e.g. Roshan Dental Clinic" />
+      </div>
+
+      <div class="form-group">
+        <label>Business Category <span class="required">*</span></label>
+        <select id="f-category">
+          <option value="">Select category…</option>
+          <option>Healthcare / Clinic</option>
+          <option>Restaurant / Cafe</option>
+          <option>Real Estate</option>
+          <option>Education / Coaching</option>
+          <option>E-commerce / Retail</option>
+          <option>Jewellery / Fashion</option>
+          <option>IT / Software</option>
+          <option>Legal / CA / Finance</option>
+          <option>Hospitality / Hotel</option>
+          <option>Automotive / Garage</option>
+          <option>Manufacturing / Industrial</option>
+          <option>Beauty / Salon / Spa</option>
+          <option>Travel / Tours</option>
+          <option>Gym / Fitness</option>
+          <option>Photography / Studio</option>
+          <option>Construction / Interior</option>
+          <option>NGO / Non-profit</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Services / Products <span class="required">*</span></label>
+        <textarea id="f-services" rows="3" placeholder="List your main services or products, one per line&#10;e.g. Root Canal Treatment&#10;Teeth Whitening&#10;Dental Implants"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone Number <span class="required">*</span></label>
+          <input type="tel" id="f-phone" placeholder="+91 98765 43210" />
+        </div>
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" id="f-email" placeholder="hello@business.com" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Business Address <span class="required">*</span></label>
+        <input type="text" id="f-address" placeholder="Full address" />
+      </div>
+
+      <div class="form-group">
+        <label>Additional Custom Info</label>
+        <textarea id="f-custom" rows="4" placeholder="Any extra details: offers, pricing, USPs, brand story, special notes, certifications, awards…"></textarea>
+      </div>
+
+      <!-- ADVANCED TOGGLE -->
+      <div class="advanced-toggle" id="advancedToggle">
+        <span class="arrow">▶</span>
+        <span>Advanced Options</span>
+      </div>
+
+      <div class="advanced-section" id="advancedSection">
+        <div class="form-section-label">Branding</div>
+
+        <div class="form-group">
+          <label>Tagline / Slogan</label>
+          <input type="text" id="f-tagline" placeholder="Your catchy slogan here" />
+        </div>
+
+        <div class="form-group">
+          <label>Logo URL</label>
+          <input type="url" id="f-logo" placeholder="https://…/logo.png" />
+        </div>
+
+        <div class="form-group">
+          <label>Theme Color</label>
+          <div class="color-row">
+            <input type="color" id="f-color-picker" value="#7c6dfa" />
+            <input type="text" id="f-color-text" value="#7c6dfa" placeholder="#hexcode" />
+          </div>
+        </div>
+
+        <div class="form-section-label">Contact & Location</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>WhatsApp Number</label>
+            <input type="tel" id="f-whatsapp" placeholder="91XXXXXXXXXX" />
+          </div>
+          <div class="form-group">
+            <label>Opening Hours</label>
+            <input type="text" id="f-hours" placeholder="Mon–Sat 9am–7pm" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Google Maps Embed Link</label>
+          <input type="url" id="f-maps" placeholder="https://maps.google.com/..." />
+        </div>
+
+        <div class="form-section-label">Social Media</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="url" id="f-instagram" placeholder="https://instagram.com/…" />
+          </div>
+          <div class="form-group">
+            <label>Facebook</label>
+            <input type="url" id="f-facebook" placeholder="https://facebook.com/…" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>LinkedIn</label>
+          <input type="url" id="f-linkedin" placeholder="https://linkedin.com/…" />
+        </div>
+
+        <div class="form-section-label">Content</div>
+
+        <div class="form-group">
+          <label>Testimonials</label>
+          <textarea id="f-testimonials" rows="3" placeholder="Name | Rating | Review text, one per line&#10;e.g. Priya S. | 5 | Best service ever!"></textarea>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="f-faq" />
+          <span>🙋 Include FAQ Section</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-generate" id="generateBtn">
+        <div class="spinner"></div>
+        <span class="btn-text">✦ Generate Premium Website</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- RIGHT: PREVIEW -->
+  <section class="panel-right">
+    <div class="preview-topbar">
+      <div class="preview-topbar-left">
+        <div class="dot idle" id="statusDot"></div>
+        <span id="statusText">Ready to generate</span>
+      </div>
+      <div class="preview-actions">
+        <button class="btn-sm" id="copyBtn" disabled>
+          <span>📋</span><span>Copy Code</span>
+        </button>
+        <button class="btn-sm" id="downloadBtn" disabled>
+          <span>⬇</span><span>Download ZIP</span>
+        </button>
+        <button class="btn-sm primary" id="publishBtn" disabled>
+          <span>🚀</span><span>Publish Guide</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-wrapper">
+      <!-- Placeholder -->
+      <div class="preview-placeholder" id="previewPlaceholder">
+        <div class="icon">🌐</div>
+        <h3>Your premium website preview<br>will appear here</h3>
+        <p>Fill in your business details on the left and click Generate. The AI will craft a fully responsive, modern website in seconds.</p>
+        <div class="hint-chips">
+          <span class="hint-chip">Hero Section</span>
+          <span class="hint-chip">Services Cards</span>
+          <span class="hint-chip">Testimonials</span>
+          <span class="hint-chip">Contact Form</span>
+          <span class="hint-chip">WhatsApp CTA</span>
+          <span class="hint-chip">SEO Ready</span>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="preview-loading" id="previewLoading">
+        <div class="loader-ring"></div>
+        <div class="loader-text" id="loaderText">✨ AI is crafting your premium website…</div>
+        <div class="loader-sub" id="loaderSub">This may take 20–40 seconds</div>
+        <div class="loader-progress"><div class="loader-progress-bar" id="progressBar"></div></div>
+      </div>
+
+      <!-- Preview iframe -->
+      <iframe id="preview-iframe" sandbox="allow-scripts allow-same-origin allow-forms" title="Website Preview"></iframe>
+    </div>
+  </section>
+</div>
+
+<!-- PUBLISH MODAL -->
+<div class="modal-overlay" id="publishModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚀 Publish Your Website</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+
+    <div class="publish-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4><span class="platform-badge">Netlify</span> Free & Instant</h4>
+        <ul>
+          <li>Go to <strong>netlify.com</strong> → Sign up free</li>
+          <li>Click "Deploy manually" on the dashboard</li>
+          <li>Drag & drop the downloaded ZIP file</li>
+          <li>Your site is live in 30 seconds ✓</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="publish-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4><span class="platform-badge">Vercel</span> Blazing Fast CDN</h4>
+        <ul>
+          <li>Go to <strong>vercel.com</strong> → Create account</li>
+          <li>Click "Add New Project" → Upload your ZIP</li>
+          <li>Hit Deploy — custom domain available</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="publish-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4><span class="platform-badge">GitHub Pages</span> Developer Pick</h4>
+        <ul>
+          <li>Create a new GitHub repo</li>
+          <li>Upload <code>index.html</code> from the ZIP</li>
+          <li>Go to Settings → Pages → Enable from main branch</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════
+const themeToggle = document.getElementById('themeToggle');
+let isDark = true;
+themeToggle.addEventListener('click', () => {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  themeToggle.textContent = isDark ? '🌙' : '☀️';
+});
+
+// ═══════════════════════════════════════════════
+// ADVANCED TOGGLE
+// ═══════════════════════════════════════════════
+const advancedToggle = document.getElementById('advancedToggle');
+const advancedSection = document.getElementById('advancedSection');
+advancedToggle.addEventListener('click', () => {
+  advancedToggle.classList.toggle('open');
+  advancedSection.classList.toggle('open');
+});
+
+// ═══════════════════════════════════════════════
+// COLOR PICKER SYNC
+// ═══════════════════════════════════════════════
+const colorPicker = document.getElementById('f-color-picker');
+const colorText = document.getElementById('f-color-text');
+colorPicker.addEventListener('input', () => { colorText.value = colorPicker.value; });
+colorText.addEventListener('input', () => {
+  const v = colorText.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) colorPicker.value = v;
+});
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function toast(msg, type = 'info', duration = 3500) {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="t-icon">${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 350);
+  }, duration);
+}
+
+// ═══════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+function setStatus(text, active = false) {
+  statusText.textContent = text;
+  statusDot.className = 'dot' + (active ? '' : ' idle');
+}
+
+// ═══════════════════════════════════════════════
+// LOADER MESSAGES
+// ═══════════════════════════════════════════════
+const loaderMessages = [
+  '✨ AI is crafting your premium website…',
+  '🎨 Designing sections with care…',
+  '📐 Building layout structure…',
+  '🖋 Writing compelling copy…',
+  '⚡ Adding animations & effects…',
+  '📱 Making it mobile responsive…',
+  '🔍 Injecting SEO metadata…',
+  '🎉 Almost ready…',
+];
+let loaderInterval;
+function startLoaderMessages() {
+  let i = 0;
+  document.getElementById('loaderText').textContent = loaderMessages[0];
+  loaderInterval = setInterval(() => {
+    i = (i + 1) % loaderMessages.length;
+    document.getElementById('loaderText').textContent = loaderMessages[i];
+  }, 3500);
+}
+function stopLoaderMessages() {
+  clearInterval(loaderInterval);
+}
+
+// ═══════════════════════════════════════════════
+// GENERATE PROMPT
+// ═══════════════════════════════════════════════
+function buildPrompt() {
+  const g = id => document.getElementById(id).value.trim();
+  const name = g('f-name');
+  const category = g('f-category');
+  const services = g('f-services');
+  const phone = g('f-phone');
+  const email = g('f-email');
+  const address = g('f-address');
+  const custom = g('f-custom');
+  const tagline = g('f-tagline');
+  const logo = g('f-logo');
+  const color = g('f-color-text') || '#7c6dfa';
+  const whatsapp = g('f-whatsapp');
+  const hours = g('f-hours');
+  const maps = g('f-maps');
+  const instagram = g('f-instagram');
+  const facebook = g('f-facebook');
+  const linkedin = g('f-linkedin');
+  const testimonials = g('f-testimonials');
+  const faq = document.getElementById('f-faq').checked;
+
+  return `Create a premium, modern, visually stunning, mobile-responsive business website as a complete single HTML file.
+
+Business Name: ${name}
+Category: ${category}
+${tagline ? `Tagline: ${tagline}` : ''}
+${logo ? `Logo URL: ${logo}` : ''}
+
+Services / Products:
+${services}
+
+${custom ? `Custom Information (MUST include this in the website):\n${custom}` : ''}
+
+Contact:
+Phone: ${phone}
+Email: ${email}
+Address: ${address}
+${whatsapp ? `WhatsApp (for floating button & CTAs): ${whatsapp}` : ''}
+${hours ? `Opening Hours: ${hours}` : ''}
+${maps ? `Google Maps embed src: ${maps}` : ''}
+
+Social Media:${instagram ? `\nInstagram: ${instagram}` : ''}${facebook ? `\nFacebook: ${facebook}` : ''}${linkedin ? `\nLinkedIn: ${linkedin}` : ''}
+
+${testimonials ? `Testimonials (MUST display these in a testimonials section):\n${testimonials}` : ''}
+
+=== STRICT DESIGN REQUIREMENTS ===
+
+Use a PREMIUM UI/UX style (like Stripe, Apple, or Framer). 
+
+Primary theme color: ${color}
+Use this color for CTAs, accents, highlights, and gradient elements.
+
+SECTIONS REQUIRED (in order):
+1. Sticky navigation bar with logo, nav links, and a CTA button
+2. Hero section: bold headline, subheadline, two CTAs (primary + secondary), hero image or gradient background
+3. About / Why Choose Us section
+4. Services / Products section with beautiful cards (icons + descriptions)
+${testimonials ? '5. Testimonials section with star ratings and review cards' : ''}
+${faq ? `${testimonials ? '6' : '5'}. FAQ section with styled accordion` : ''}
+${testimonials || faq ? `${(testimonials ? 1 : 0) + (faq ? 1 : 0) + 5}` : '5'}. Contact section with a styled form + map embed (if provided) + contact details
+Last. Footer with social links, quick links, copyright
+
+DESIGN RULES:
+- Use Google Fonts (pick one premium display font + one body font matching the business type)
+- Use CSS custom properties for the color system
+- Add smooth scroll behavior: scroll-behavior: smooth
+- Add IntersectionObserver-based fade-in/slide-up animations for sections
+- Cards must have hover effects (lift + shadow)
+- Add a floating WhatsApp button (bottom right) ${whatsapp ? `linking to https://wa.me/${whatsapp}` : 'if WhatsApp provided'}
+- Add a floating call button (bottom left) if phone provided
+- Contact form should pre-fill a WhatsApp message and open wa.me link on submit (if WhatsApp provided)
+- All images: use real Unsplash CDN URLs (https://images.unsplash.com/photo-XXXXX?auto=format&fit=crop&w=800&q=80) that actually exist and match the business type. Pick different photo IDs for each image.
+- Add SEO meta tags: title, description, keywords, og:title, og:description, canonical
+- Add JSON-LD structured data for LocalBusiness schema
+- Mobile-first, 100% responsive, hamburger menu on mobile
+- Clean semantic HTML5 structure
+
+TECHNICAL:
+- Single HTML file with all CSS and JS embedded
+- NO external dependencies except Google Fonts
+- Clean, valid, production-ready code
+- Smooth UX throughout
+
+⚠️ CRITICAL: Return ONLY the complete HTML code. No explanations, no markdown, no code block backticks. Start directly with <!DOCTYPE html>`;
+}
+
+// ═══════════════════════════════════════════════
+// API CALL
+// ═══════════════════════════════════════════════
+const API_URL = '/api/generate';
+
+let generatedHTML = '';
+
+async function generateWebsite() {
+  const name = document.getElementById('f-name').value.trim();
+  const category = document.getElementById('f-category').value;
+  const services = document.getElementById('f-services').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+
+  if (!name || !category || !services || !phone || !email || !address) {
+    toast('Please fill in all required fields ✦', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.querySelector('.btn-text').textContent = 'Generating…';
+
+  document.getElementById('previewPlaceholder').style.display = 'none';
+  document.getElementById('preview-iframe').classList.remove('active');
+  document.getElementById('preview-iframe').style.display = 'none';
+
+  // Reset progress bar
+  const pb = document.getElementById('progressBar');
+  pb.style.animation = 'none';
+  pb.offsetHeight; // reflow
+  pb.style.animation = 'progress 35s ease-out forwards';
+
+  document.getElementById('previewLoading').classList.add('active');
+  setStatus('AI generating…', true);
+  startLoaderMessages();
+
+  ['copyBtn','downloadBtn','publishBtn'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+
+  try {
+    const prompt = buildPrompt();
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mistralai/mistral-nemotron',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert frontend developer specializing in premium, modern, high-converting business websites. You write clean, semantic, production-ready HTML with embedded CSS and JS. You always return ONLY the complete HTML code with no explanations or markdown formatting whatsoever.'
+          },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 16000,
+        temperature: 0.7,
+        top_p: 0.9,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API Error ${res.status}: ${errText.slice(0, 200)}`);
+    }
+
+    const data = await res.json();
+    let html = data?.choices?.[0]?.message?.content || '';
+
+    if (!html) throw new Error('Empty response from AI. Please try again.');
+
+    // Clean markdown fences if any
+    html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+    if (!html.toLowerCase().includes('<!doctype') && !html.toLowerCase().includes('<html')) {
+      throw new Error('AI returned invalid HTML. Please try again.');
+    }
+
+    generatedHTML = html;
+
+    // Show in iframe
+    stopLoaderMessages();
+    document.getElementById('previewLoading').classList.remove('active');
+    const iframe = document.getElementById('preview-iframe');
+    iframe.srcdoc = html;
+    iframe.style.display = 'block';
+    iframe.classList.add('active');
+
+    setStatus('Website ready ✓', false);
+    ['copyBtn','downloadBtn','publishBtn'].forEach(id => {
+      document.getElementById(id).disabled = false;
+    });
+    toast('🎉 Website generated successfully!', 'success');
+
+  } catch (err) {
+    stopLoaderMessages();
+    document.getElementById('previewLoading').classList.remove('active');
+    document.getElementById('previewPlaceholder').style.display = '';
+
+    setStatus('Generation failed', false);
+    toast(`Error: ${err.message}`, 'error', 6000);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.querySelector('.btn-text').textContent = '✦ Generate Premium Website';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// COPY CODE
+// ═══════════════════════════════════════════════
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (!generatedHTML) return;
+  try {
+    await navigator.clipboard.writeText(generatedHTML);
+    toast('✓ Code copied to clipboard!', 'success');
+  } catch {
+    toast('Could not copy to clipboard', 'error');
+  }
+});
+
+// ═══════════════════════════════════════════════
+// DOWNLOAD ZIP
+// ═══════════════════════════════════════════════
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+  if (!generatedHTML) return;
+  try {
+    const zip = new JSZip();
+    const biz = (document.getElementById('f-name').value.trim() || 'website')
+      .toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    zip.file('index.html', generatedHTML);
+    zip.file('README.txt',
+      `${document.getElementById('f-name').value.trim()} — Website\n\nGenerated by SiteForge AI\n\nTo publish:\n1. Netlify: drag & drop this ZIP at netlify.com\n2. Vercel: upload at vercel.com\n3. GitHub Pages: upload index.html to repo\n`
+    );
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${biz}-website.zip`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('⬇ ZIP downloaded!', 'success');
+  } catch (e) {
+    toast('Download failed: ' + e.message, 'error');
+  }
+});
+
+// ═══════════════════════════════════════════════
+// PUBLISH MODAL
+// ═══════════════════════════════════════════════
+document.getElementById('publishBtn').addEventListener('click', () => {
+  document.getElementById('publishModal').classList.add('open');
+});
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('publishModal').classList.remove('open');
+});
+document.getElementById('publishModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('publishModal'))
+    document.getElementById('publishModal').classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════
+// GENERATE BUTTON
+// ═══════════════════════════════════════════════
+document.getElementById('generateBtn').addEventListener('click', generateWebsite);
+
+// Allow Enter in inputs to trigger generate
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateWebsite();
+  });
+});
+</script>
+</body>
+</html>
